@@ -35,7 +35,7 @@ Node 端使用 `@modelcontextprotocol/sdk` 连接 `https://mcp.mcd.cn`（Streama
 
 按[官方指南](https://github.com/M-China/mcd-mcp-server)申请 Token，设置 `MCD_MCP_TOKEN` 或被忽略的 `.env.local`，安装依赖后执行 `pnpm sync:mcd`。成功后原子替换 `public/data/nutrition.snapshot.json`，只输出日期、数量和告警。
 
-单次 HTTP 超时30秒，最多三次尝试，有限退避，Retry-After 等待上限30秒；401不重试。未知格式、网络错误和空数据均不替换旧快照。普通 CI 使用提交的快照和合成夹具，不依赖个人 Token。
+单次 HTTP 超时30秒，最多三次尝试，有限退避，Retry-After 等待上限30秒；401不重试。未知格式、网络错误和空数据均不替换旧快照。普通 CI 使用提交的快照进行独立运行检查，不依赖个人 Token。
 
 ## 数据价值与算法
 
@@ -58,4 +58,4 @@ search 对 kcal 上限包含边界，缺失不满足上限；alternatives --lowe
 
 compare 的差异是第二项减第一项。原值差只表达接口记录差，不证明等重量或等份量；混合已知单位与未知单位时不计算该维度差值。所有命令不回答当前在售、库存、价格、医疗建议或账户信息。结果链接对应线上快照，外部新餐品可能尚未上站，不能用链接证明网页已同步。
 
-独立包、固定命令验收与真实 Agent 客户端使用是不同层次，见 [SKILL_ACCEPTANCE.md](docs/SKILL_ACCEPTANCE.md)。普通 CI 通过模拟接口夹具检查异常分支，不调用个人认证 MCP，不把夹具称为真实接口采样。
+独立包运行检查与真实 Agent 客户端使用是不同层次。当前 Actions 直接验证独立包；已有 [独立 Agent 调用记录](https://github.com/ayingQAQ/McCosmos/actions/runs/40034359098) 可查阅。CI 不调用个人认证 MCP，也不将这些检查称为所有客户端自动发现验证。

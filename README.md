@@ -1,6 +1,6 @@
 # McCosmos · 麦门星图
 
-![McCosmos 宇宙观测站：首页与今日探索任务](docs/screenshots/observatory-home.png)
+![McCosmos 宇宙观测站：首页与今日探索任务](.github/images/observatory-home.png)
 
 基于麦当劳 MCP 的**餐品营养对比与替代发现 Skill**。用自然语言比较真实餐品、按热量条件找候选、解释营养相似性，并通过三维星图查看结果。
 
@@ -26,7 +26,7 @@
 | 冰牛奶有哪些杯型 | 列出具体规格，避免混用大小杯数据 |
 | 想在星图里看这些餐品 | 提供对应图鉴或星图链接 |
 
-Skill 会检查实际 CLI 结果再答复。相似度不是健康评分；未核实单位保持“原始值”，不声称每份或每100克；没有符合结果时明确说明。[Skill 入口](skills/mccosmos/SKILL.md) · [命令参考](skills/mccosmos/references/commands.md) · [验收方法与证据](docs/SKILL_ACCEPTANCE.md)
+Skill 会检查实际 CLI 结果再答复。相似度不是健康评分；未核实单位保持“原始值”，不声称每份或每100克；没有符合结果时明确说明。[Skill 入口](skills/mccosmos/SKILL.md) · [命令参考](skills/mccosmos/references/commands.md) · [Actions 运行记录](https://github.com/ayingQAQ/McCosmos/actions/workflows/skill.yml)
 
 独立包也能直接运行：
 
@@ -48,7 +48,7 @@ node "/path/to/mccosmos/scripts/mccosmos.mjs" alternatives --name="巨无霸" --
 
 建议从观测站开始探索；五个站点均可通过顶部导航直接进入。
 
-![探索路径：宇宙观测站 → 营养星系 → 星球图鉴 → 营养实验室 → 探索任务](docs/screenshots/exploration-flow.svg)
+![探索路径：宇宙观测站 → 营养星系 → 星球图鉴 → 营养实验室 → 探索任务](.github/images/exploration-flow.svg)
 
 ## 开发与接入
 
@@ -57,16 +57,14 @@ node "/path/to/mccosmos/scripts/mccosmos.mjs" alternatives --name="巨无霸" --
 | [Actions 与静态包](https://github.com/ayingQAQ/McCosmos/actions/workflows/ci.yml) | 查看构建、测试结果，下载可离线运行的静态包 |
 | [MCP 接入说明](MCP_INTEGRATION.md) | 数据同步、接口使用与凭据配置方式 |
 | [McCosmos Skill](skills/mccosmos/SKILL.md) | 安装后使用自然语言对比、筛选与查找替代餐品 |
-| [用户旅程与验收](docs/USER_JOURNEYS.md) | 五站之间的交互路径和验收记录 |
-| [实施记录](docs/IMPLEMENTATION_LOG.md) | 项目开发过程与阶段记录 |
 
 ## 更多预览
 
-![麦门星图 · 三维卡通美食宇宙](docs/screenshots/food-universe-desktop.png)
+![麦门星图 · 三维卡通美食宇宙](.github/images/food-universe-desktop.png)
 
-![三维球面图案与真实商品图片](docs/screenshots/food-planet-details.png)
+![三维球面图案与真实商品图片](.github/images/food-planet-details.png)
 
-![清晰排版的今日任务](docs/screenshots/home-missions-1112.png)
+![清晰排版的今日任务](.github/images/home-missions-1112.png)
 
 ## 食物星球与真实商品照片
 
@@ -76,7 +74,7 @@ node "/path/to/mccosmos/scripts/mccosmos.mjs" alternatives --name="巨无霸" --
 
 图鉴中同款饮品不再按大小杯重复铺卡：**117 张卡片，其中饮品 40 张**；默认展示中杯，详情中可切换杯型，各自的原始 ID、营养值、收藏与实验室记录保持独立。冰/热、口味与奶基底不同的商品仍分开。
 
-图片保留菜单原名、编码、来源页、原始 URL 与审核说明。尺寸参考在卡片和详情公开标注，官网套餐推广图只用于对应的同名组合；历史推广文案及价格不代表当前供应。尚未确认的 20 条规格与加载失败时显示明确占位，不用其他商品冒充。逐项来源与未覆盖列表见 [图片来源与覆盖](docs/FOOD_IMAGES.md)。
+图片保留菜单原名、编码、来源页、原始 URL 与审核说明。尺寸参考在卡片和详情公开标注，官网套餐推广图只用于对应的同名组合；历史推广文案及价格不代表当前供应。尚未确认的 20 条规格与加载失败时显示明确占位，不用其他商品冒充。逐项来源与匹配方式见 [图片映射清单](src/data/food-images.json)。
 
 - [图片映射清单](src/data/food-images.json)：独立于营养数据，不推断配料或营养值。
 - [商品照片缓存](public/food-photos)：本地静态文件，支持离线包；`node scripts/cache-food-photos.mjs` 可重新缓存已审核 URL，不需要 Token。
@@ -154,20 +152,22 @@ pnpm cosmos:cli -- discover --kind=lonely --demo
 
 上面是源码模式，需要项目依赖。分发时使用 `pnpm skill:build` 生成 `dist-skill/mccosmos`，`pnpm skill:verify` 在仓库外的临时目录验收纯 Node 包；这些构建和验收在 Actions 中执行。复制源码 `skills/mccosmos` 仅得到指令与参考，仍需要项目；用户安装应优先下载完整独立包。不会自动修改客户端配置。
 
-## 验证与部署
+## 验证与分发
 
-每次 push、PR、手动触发均运行 Actions：test → typecheck → lint → build → skill:build → skill:verify → verify:contest → Playwright。普通 CI 不配置 MCP Token；浏览器测试使用真正的离线静态包，保存1440×900、768×1024、390×844截图和测试报告。
+每次 push、PR、手动触发由 Actions 执行类型检查、lint、网页构建、Skill 打包、仓库外独立运行检查及参赛文件校验，不需要个人 Token。独立运行检查覆盖比较、替代发现、筛选、杯型、无结果和失败退出码。测试源码和历史开发文档已从当前分支移除。
 
-Cloudflare Pages：构建命令 `pnpm build`，输出 `dist`，Node24，无需服务端凭据。也可上传 Actions 产物。在线部署状态见实施记录；没有实际可访问地址前不宣称上线。
+历史完整回归和独立 Agent 实际调用仍可查阅 [全量运行记录](https://github.com/ayingQAQ/McCosmos/actions/runs/40034749294) 与 [Agent 演练记录](https://github.com/ayingQAQ/McCosmos/actions/runs/40034359098)。Agent 演练不等同于所有客户端的自动发现验证。
+
+Cloudflare Pages：构建命令 `pnpm build`，输出 `dist`，Node24，无需服务端凭据。也可上传 Actions 产物。在线体验见 [McCosmos](https://mccosmos.pages.dev/)。
 
 ## 技术与原创性
 
-星系使用按需渲染、InstancedMesh 批量绘制与有上限的插画解码缓存（32 张 / 8 MiB）；静止后停止动画帧，退出页面释放 GPU 资源。保留真正的三维透视与逐星球拾取，详见[性能与缓存说明](docs/PERFORMANCE.md)。
+星系使用按需渲染、InstancedMesh 批量绘制与有上限的插画解码缓存（32 张 / 8 MiB）；静止后停止动画帧，退出页面释放 GPU 资源。保留真正的三维透视与逐星球拾取。
 
-React、TypeScript、Vite、Three.js WebGL2（PerspectiveCamera、OrbitControls、Raycaster）、自绘 SVG、少量 Rough.js 纸面装饰；Canvas2D 仅用于材质纹理与卡片导出。Zod 和 TOON 严格适配、MCP SDK 同步，Vitest 和 Playwright 验证。
+React、TypeScript、Vite、Three.js WebGL2（PerspectiveCamera、OrbitControls、Raycaster）、自绘 SVG、少量 Rough.js 纸面装饰；Canvas2D 仅用于材质纹理与卡片导出。Zod 和 TOON 严格适配、MCP SDK 同步；构建和独立 Skill 运行由 GitHub Actions 检查。
 
-三维布局、相机、材质、资源清理与扩展入口见 [三维重构说明](docs/WEBGL_REBUILD.md)。
+三维渲染代码见 [src/galaxy](src/galaxy)。
 
 星球、纸张布局和插画为原创。感谢 [Wired Elements](https://github.com/rough-stuff/wired-elements)、[PaperCSS](https://github.com/papercss/papercss)、[Rough.js](https://github.com/rough-stuff/rough) 的线条启发，不套用完整布局。第三方许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。代码 MIT，官方数据、声明和第三方素材各遵守自身条款。
 
-参赛文件见 [官方原文声明](CONTEST_DECLARATION.md) 与 [清单](docs/CONTEST_CHECKLIST.md)。未使用 WorkBuddy，不编造开发记录。
+参赛要求文件保留 [官方原文声明](CONTEST_DECLARATION.md)、[MCP 接入说明](MCP_INTEGRATION.md) 与 [脱敏配置](mcp-config.example.json)。

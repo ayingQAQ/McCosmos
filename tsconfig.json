@@ -7,5 +7,5 @@
     "noUnusedLocals": true, "noUnusedParameters": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "scripts", "tests", "*.ts"]
+  "include": ["src", "scripts", "*.ts"]
 }

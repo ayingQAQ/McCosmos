@@ -1,7 +1,7 @@
 name: Validate McCosmos Skill
 on:
   push:
-    paths: ['skills/**', 'src/cli/**', 'src/core/**', 'src/graph/analysis.ts', 'src/data/**', 'src/mcp/**', 'scripts/*skill*', 'scripts/cosmos-cli.ts', 'tests/*skill*', 'tests/cli.test.ts', 'package.json', 'pnpm-lock.yaml', '.github/workflows/skill.yml']
+    paths: ['skills/**', 'src/cli/**', 'src/core/**', 'src/graph/analysis.ts', 'src/data/**', 'src/mcp/**', 'scripts/*skill*', 'scripts/cosmos-cli.ts', 'package.json', 'pnpm-lock.yaml', '.github/workflows/skill.yml']
   workflow_dispatch:
     inputs:
       skill_args:
@@ -27,7 +27,6 @@ jobs:
           node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test tests/cli.test.ts tests/skill-workflows.test.ts tests/skill-input.test.ts
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm skill:build

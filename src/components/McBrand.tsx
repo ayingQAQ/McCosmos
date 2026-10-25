@@ -1,4 +1,4 @@
-/** Local copy of the mark published on McDonald's China's website; see docs/BRAND_ASSETS.md. */
+/** Local copy of the mark published on McDonald's China's website. Rights remain with the brand owner. */
 export function McBrandMark({ className = '', decorative = false }: { className?: string; decorative?: boolean }) {
   return <img className={`mc-brand-mark ${className}`} src="/brand/mcdonalds-logo.jpg" width="48" height="48" alt={decorative ? '' : '麦当劳金拱门标识'} draggable={false}/>;
 }
