@@ -12,3 +12,5 @@
 Wired Elements and PaperCSS are visual references only; their code, stylesheets, logos and screenshots are not included.
 
 McDonald's nutrition data and official declaration remain subject to source terms. The code license does not grant trademark rights or change the official data terms.
+
+McDonald's brand mark: local copy of the image published on https://www.mcdonalds.com.cn/ (original asset https://officiaweb-afd.mcdonalds.com.cn/public/files/images/mcd-logo.jpg, retrieved 2026-10-21). The mark remains the property of its rights holder and is used for brand identification, without claiming official endorsement.

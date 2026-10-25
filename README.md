@@ -54,7 +54,7 @@ node "/path/to/mccosmos/scripts/mccosmos.mjs" alternatives --name="巨无霸" --
 
 | 入口 | 内容 |
 | --- | --- |
-| [Actions 与静态包](https://github.com/ayingQAQ/McCosmos/actions/workflows/ci.yml) | 查看构建、测试结果，下载可离线运行的静态包 |
+| [Actions 与静态包](https://github.com/ayingQAQ/McCosmos/actions/workflows/ci.yml) | 查看构建与运行检查结果，下载可离线运行的静态包 |
 | [MCP 接入说明](MCP_INTEGRATION.md) | 数据同步、接口使用与凭据配置方式 |
 | [McCosmos Skill](skills/mccosmos/SKILL.md) | 安装后使用自然语言对比、筛选与查找替代餐品 |
 
