@@ -154,15 +154,15 @@ pnpm cosmos:cli -- discover --kind=lonely --demo
 
 ## 验证与分发
 
-每次 push、PR、手动触发由 Actions 执行类型检查、lint、网页构建、Skill 打包、仓库外独立运行检查及参赛文件校验，不需要个人 Token。独立运行检查覆盖比较、替代发现、筛选、杯型、无结果和失败退出码。测试源码和历史开发文档已从当前分支移除。
+每次 push、PR、手动触发由 Actions 执行类型检查、lint、网页构建、Skill 打包、仓库外独立运行检查及参赛文件校验，不需要个人 Token。独立运行检查覆盖比较、替代发现、筛选、杯型、无结果和失败退出码。另在 `scripts/verify-core.ts` 和 `scripts/verify-web.mjs` 保留必要检查：每日任务结果与 BFS 定义一致、单位边界、杯型/收藏/实验室、三维搜索定位、短屏面板和页面下载失败恢复；截图与检查记录保存在 `verification-evidence` 产物中。历史开发文档已移除。
 
 历史完整回归和独立 Agent 实际调用仍可查阅 [全量运行记录](https://github.com/ayingQAQ/McCosmos/actions/runs/40034749294) 与 [Agent 演练记录](https://github.com/ayingQAQ/McCosmos/actions/runs/40034359098)。Agent 演练不等同于所有客户端的自动发现验证。
 
-Cloudflare Pages：构建命令 `pnpm build`，输出 `dist`，Node24，无需服务端凭据。也可上传 Actions 产物。在线体验见 [McCosmos](https://mccosmos.pages.dev/)。
+Cloudflare Pages：构建命令 `pnpm build`，输出 `dist`，Node24，无需服务端凭据。Actions 在检查通过后使用同一次构建的产物发布。自动发布需要仓库 Secrets `CLOUDFLARE_API_TOKEN`（目标账户 Pages Edit 权限）与 `CLOUDFLARE_ACCOUNT_ID`；未配置时明确标记发布待完成，不声称网页已更新。`release.json` 和页脚提供发布版本。也可手动上传已验证的 Actions 产物。在线体验见 [McCosmos](https://mccosmos.pages.dev/)。
 
 ## 技术与原创性
 
-星系使用按需渲染、InstancedMesh 批量绘制与有上限的插画解码缓存（32 张 / 8 MiB）；静止后停止动画帧，退出页面释放 GPU 资源。保留真正的三维透视与逐星球拾取。
+页面按需加载，三维布局与发现分析进入星系后计算；每日航线任务通过连通分量判断可达性，避免逐对重复寻路。星系详细诊断默认关闭，仅开发环境或显式 `?diagnostics=1` 启用。星系使用按需渲染、InstancedMesh 批量绘制与有上限的插画解码缓存（32 张 / 8 MiB）；静止后停止动画帧，退出页面释放 GPU 资源。保留真正的三维透视与逐星球拾取。
 
 React、TypeScript、Vite、Three.js WebGL2（PerspectiveCamera、OrbitControls、Raycaster）、自绘 SVG、少量 Rough.js 纸面装饰；Canvas2D 仅用于材质纹理与卡片导出。Zod 和 TOON 严格适配、MCP SDK 同步；构建和独立 Skill 运行由 GitHub Actions 检查。
 

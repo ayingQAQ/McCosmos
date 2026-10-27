@@ -7,10 +7,12 @@ import { FoodPhoto } from './FoodPhoto';
 
 export function PlanetDetails({ food, dataset, graph, onClose, onSelect, onRouteEndpoint, actions, variantControls }: { food: FoodPlanet; dataset: Dataset; graph: NutritionGraph; onClose: () => void; onSelect: (id: string) => void; onRouteEndpoint: (which: 'from' | 'to', id: string) => void; actions?: ReactNode; variantControls?: ReactNode }) {
   const heading = useRef<HTMLHeadingElement>(null), [exporting, setExporting] = useState(false), [error, setError] = useState('');
+  const [expanded, setExpanded] = useState(false);
   useEffect(() => { const previous = document.activeElement as HTMLElement | null; heading.current?.focus({ preventScroll: true }); return () => { if (previous?.isConnected) previous.focus({ preventScroll: true }); }; }, [food.id]);
   const related = neighbors(graph, food.id);
   async function save() { setExporting(true); setError(''); try { await exportPlanetCard(food, dataset); } catch { setError('图片没有保存成功，请重试或更换浏览器。'); } finally { setExporting(false); } }
-  return <aside className="planet-details paper" aria-label={`${food.name}星球档案`}>
+  return <aside className={`planet-details paper${expanded ? ' details-expanded' : ''}`} aria-label={`${food.name}星球档案`}>
+    <button className="detail-sheet-toggle" aria-expanded={expanded} onClick={()=>setExpanded(value=>!value)}>{expanded?'收起档案，继续探索':'展开餐品档案'} <span aria-hidden="true">{expanded?'⌄':'⌃'}</span></button>
     <div className="detail-top"><span className="eyebrow">PLANET FIELD NOTES</span><button className="icon-button" aria-label="关闭星球档案" onClick={onClose}><Icon name="close"/></button></div>
     <FoodPhoto food={food}/><span className="category-tag">{categoryNames[food.category]} · {food.categorySource === 'inferred' ? '本地推断' : '未分类'}</span>
     <h2 ref={heading} tabIndex={-1}>{food.name}</h2><p className="detail-basis">{food.basis.description}</p>

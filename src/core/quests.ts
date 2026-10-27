@@ -1,5 +1,5 @@
 import { nutrientKeys, nutrientNames, stableHash, type Dataset, type NutritionGraph, type NutrientKey } from '../data/schema';
-import { algorithm, compareFoods, compareIds, findRoute, normalizeFoods } from '../graph/analysis';
+import { algorithm, compareFoods, compareIds, connectedComponents, findRoute, normalizeFoods } from '../graph/analysis';
 export interface DailyQuest { id: string; type: 'twins' | 'nutrient' | 'route'; title: string; description: string; available: boolean; candidates: string[]; pair?: [string, string]; nutrient?: NutrientKey; threshold?: number; clue: string }
 export function datasetVersion(dataset: Dataset): string {
   const identity = JSON.stringify({ meta: dataset.meta, foods: [...dataset.foods].sort((a, b) => compareIds(a.id, b.id)) });
@@ -47,9 +47,9 @@ export function createDailyQuests(dataset: Dataset, graph: NutritionGraph, date:
   }
 
   const routes: [string, string][] = [];
+  const components = connectedComponents(safeGraph);
   for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
-    const path = findRoute(safeGraph, nodes[i].id, nodes[j].id);
-    if (path && path.length >= 2) routes.push([nodes[i].id, nodes[j].id]);
+    if (components.get(nodes[i].id) === components.get(nodes[j].id)) routes.push([nodes[i].id, nodes[j].id]);
   }
   if (routes.length) {
     route.pair = routes[seed % routes.length];

@@ -22,6 +22,7 @@ export function normalizeFoods(foods: FoodPlanet[]): Normalized {
   return result;
 }
 export function compareFoods(a: FoodPlanet, b: FoodPlanet, values: Normalized): { score: number; comparableKeys: NutrientKey[] } | null {
+  if (a.basis.unitsVerified !== b.basis.unitsVerified) return null;
   const av = values.get(a.id), bv = values.get(b.id);
   if (!av || !bv) return null;
   const comparableKeys = nutrientKeys.filter(key => av[key] !== undefined && bv[key] !== undefined);
@@ -72,6 +73,29 @@ export function findRoute(graph: NutritionGraph, from: string, to: string): stri
     }
   }
   return null;
+}
+/** Reachability needs one traversal, not a new BFS for every pair of foods. */
+export function connectedComponents(graph: NutritionGraph): Map<string, number> {
+  const adjacency = new Map(graph.nodes.map(node => [node.id, [] as string[]]));
+  for (const edge of graph.edges) {
+    if (!adjacency.has(edge.source) || !adjacency.has(edge.target)) continue;
+    adjacency.get(edge.source)!.push(edge.target);
+    adjacency.get(edge.target)!.push(edge.source);
+  }
+  const components = new Map<string, number>();
+  let component = 0;
+  for (const id of adjacency.keys()) {
+    if (components.has(id)) continue;
+    const queue = [id]; components.set(id, component);
+    for (let i = 0; i < queue.length; i++) {
+      for (const next of adjacency.get(queue[i])!) {
+        if (components.has(next)) continue;
+        components.set(next, component); queue.push(next);
+      }
+    }
+    component++;
+  }
+  return components;
 }
 export function discover(foods: FoodPlanet[]): { twins: SimilarityEdge[]; lonely: { id: string; nearestScore: number }[] } {
   const sorted = [...foods].sort((a, b) => compareIds(a.id, b.id)), values = normalizeFoods(sorted);

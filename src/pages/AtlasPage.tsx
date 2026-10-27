@@ -7,6 +7,7 @@ import { FoodCard } from '../components/FoodCard';
 import { FoodDetails } from '../components/FoodDetails';
 import { Icon } from '../components/Illustrations';
 import { groupFoodVariants } from '../data/foodVariants';
+import { getFoodImage } from '../data/foodImages';
 
 export default function AtlasPage() {
   const { dataset, state, foodById, visitFood } = useFood();
@@ -21,6 +22,7 @@ export default function AtlasPage() {
     if (value) next.set(key, value); else next.delete(key);
     setParams(next, { replace }); if (key !== 'food') setLimit(24);
   }
+  const photoCount = useMemo(() => dataset.foods.filter(food => getFoodImage(food.id)).length, [dataset]);
   const groups = useMemo(() => groupFoodVariants(dataset.foods), [dataset]);
   const counts = useMemo(() => new Map<string, number>([['all', groups.length], ['favorites', groups.filter(group => group.variants.some(food => state.favoriteIds.includes(food.id))).length], ...categories.map(key => [key, groups.filter(group => group.food.category === key).length] as [string, number])]), [groups, state.favoriteIds]);
   const matches = useMemo(() => {
@@ -52,7 +54,7 @@ export default function AtlasPage() {
     </section>
     {matches.length ? <div className="atlas-grid">{matches.slice(0, limit).map(group => <FoodCard key={group.food.id} food={group.food} displayName={group.name} variantCount={group.variants.length} current={group.variants.some(item => item.id === foodId)} onOpen={() => update('food', group.food.id)}/>)}</div> : <div className="empty-state paper"><h2>这一页还没有星球</h2><p>试试其他名称或分类；收藏后可在「已收藏」中找到。</p><button className="button" onClick={reset}>重置筛选</button></div>}
     {matches.length > limit && <button className="button atlas-more" onClick={() => setLimit(value => value + 24)}>再翻 24 颗星球 <small>还剩 {matches.length - limit}</small></button>}
-    <aside className="atlas-notes"><p>分类由项目根据名称推断，卡片插画为通用示意。收藏和浏览记录仅保存在当前浏览器，清除浏览器数据后会消失。缺失营养值始终排在末尾；完整表示五项指标有值，不代表单位或每份口径已核实。</p><p>{dataset.meta.mode === 'synthetic-demo' ? '演示数据（非官方）' : '官方数据快照'} · {dataset.meta.source} · {dataset.meta.fetchedAt ?? '获取时间未提供'}。未核实单位按「原始值」显示。</p></aside>
+    <aside className="atlas-notes"><p>当前 {dataset.foods.length} 条原始规格中，{photoCount} 条有已审核图片，{dataset.foods.length-photoCount} 条暂无已核实图片；同款尺寸参考已单独标注。</p><p>分类由项目根据名称推断，卡片插画为通用示意。收藏和浏览记录仅保存在当前浏览器，清除浏览器数据后会消失。缺失营养值始终排在末尾；完整表示五项指标有值，不代表单位或每份口径已核实。</p><p>{dataset.meta.mode === 'synthetic-demo' ? '演示数据（非官方）' : '官方数据快照'} · {dataset.meta.source} · {dataset.meta.fetchedAt ?? '获取时间未提供'}。未核实单位按「原始值」显示。</p></aside>
     {food && <FoodDetails foodId={food.id} onClose={() => update('food', '')} onVariantSelect={id => update('food', id)}/>}
   </main>;
 }

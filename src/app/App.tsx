@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { BrowserRouter, Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { RepositoryBoundary, useFood } from '../state/FoodProvider';
 import { McBrandMark } from '../components/McBrand';
@@ -6,11 +6,17 @@ import { Icon } from '../components/Illustrations';
 import { Modal } from '../components/Modal';
 import { palette } from '../art/planets';
 import { formatNutrient } from '../data/schema';
-import ObservatoryPage from '../pages/ObservatoryPage';
-import GalaxyPage from '../pages/GalaxyPage';
-import AtlasPage from '../pages/AtlasPage';
-import LabPage from '../pages/LabPage';
-import QuestsPage from '../pages/QuestsPage';
+const ObservatoryPage=lazy(()=>import('../pages/ObservatoryPage'));
+const GalaxyPage=lazy(()=>import('../pages/GalaxyPage'));
+const AtlasPage=lazy(()=>import('../pages/AtlasPage'));
+const LabPage=lazy(()=>import('../pages/LabPage'));
+const QuestsPage=lazy(()=>import('../pages/QuestsPage'));
+
+class PageBoundary extends Component<{children:ReactNode},{failed:boolean}> {
+  state={failed:false};
+  static getDerivedStateFromError(){return {failed:true};}
+  render(){return this.state.failed?<main className="load-state paper" role="alert"><h1>这一站暂时没有展开</h1><p>请重新加载页面，已保存的收藏和实验台会保留。</p><button className="button" onClick={()=>location.reload()}>重新加载</button></main>:this.props.children;}
+}
 
 const navigation=[['/','宇宙观测站'],['/galaxy','营养星系'],['/atlas','星球图鉴'],['/lab','营养实验室'],['/quests','探索任务']] as const;
 const typing=(target:EventTarget|null)=>target instanceof HTMLElement&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
@@ -39,10 +45,10 @@ function AppShell(){
   return <>
     <header className="site-header upgrade-header"><Link className="brand" to={path('/')} aria-label="McCosmos 麦门星图首页"><McBrandMark decorative/><div><strong>McCosmos<span>麦门星图</span></strong><small>麦门星图 / A LITTLE McUNIVERSE</small></div></Link><nav aria-label="主导航">{navigation.map(([href,title],i)=><NavLink key={href} aria-label={title} end={href==='/'} to={path(href)} className={({isActive})=>isActive?'nav-current':''}><small>0{i+1}</small>{title}{href==='/lab'&&state.labSelectedIds.length>0&&<b>{state.labSelectedIds.length}</b>}</NavLink>)}</nav>
       <div className="header-tools"><GlobalSearch/><button className={`global-source ${official?'':'is-demo'}`} onClick={()=>setSourceOpen(true)} aria-label="查看全局数据来源" title={`${fetched} · v${dataset.meta.schemaVersion}`}><i/><strong>{official?'官方营养快照':'合成示例数据 · 非官方营养信息'}</strong><span>{fetched} · v{dataset.meta.schemaVersion}</span><Icon name="info" size={15}/></button></div></header>
-    <Routes><Route path="/" element={<ObservatoryPage/>}/><Route path="/galaxy" element={<GalaxyPage/>}/><Route path="/atlas" element={<AtlasPage/>}/><Route path="/lab" element={<LabPage/>}/><Route path="/quests" element={<QuestsPage/>}/><Route path="*" element={<main className="empty-state paper"><h1>这条航道还没有记录</h1><p>从观测站重新出发，或搜索一颗餐品星球。</p><Link className="button primary" to={path('/')}>返回宇宙观测站</Link></main>}/></Routes>
+    <PageBoundary key={location.pathname}><Suspense fallback={<main className="load-state paper" role="status">正在打开探索站…</main>}><Routes><Route path="/" element={<ObservatoryPage/>}/><Route path="/galaxy" element={<GalaxyPage/>}/><Route path="/atlas" element={<AtlasPage/>}/><Route path="/lab" element={<LabPage/>}/><Route path="/quests" element={<QuestsPage/>}/><Route path="*" element={<main className="empty-state paper"><h1>这条航道还没有记录</h1><p>从观测站重新出发，或搜索一颗餐品星球。</p><Link className="button primary" to={path('/')}>返回宇宙观测站</Link></main>}/></Routes></Suspense></PageBoundary>
     <div className="live-feedback" role="status" aria-live="polite">{notice}</div>{storageWarning&&<p className="storage-warning" role="status">{storageWarning}</p>}
-    <footer className="site-footer"><span><McBrandMark decorative/> 好奇心，是最好的宇宙飞船。</span><p>独立参赛作品 · 营养信息以官方渠道为准。收藏、实验台和任务仅存于当前浏览器，清除数据后消失。</p><a href="https://github.com/ayingQAQ/McCosmos" target="_blank" rel="noreferrer">项目手记 ↗</a></footer>
+    <footer className="site-footer"><span><McBrandMark decorative/> 好奇心，是最好的宇宙飞船。</span><p>独立参赛作品 · 营养信息以官方渠道为准。收藏、实验台和任务仅存于当前浏览器，清除数据后消失。</p><a href="https://github.com/ayingQAQ/McCosmos" target="_blank" rel="noreferrer">项目手记 ↗</a><small className="release-version">版本 {import.meta.env.VITE_RELEASE ?? 'local'}</small></footer>
     {sourceOpen&&<Modal title="数据来源与探索边界" onClose={()=>setSourceOpen(false)}><div className="about-content"><h3>{official?'官方营养快照':'合成示例数据 · 非官方营养信息'}</h3><p>{dataset.meta.source}</p><p>获取时间：{dataset.meta.fetchedAt??'不适用（合成示例）'}<br/>原始 {dataset.meta.rawCount} 条 · 当前 {dataset.foods.length} 条 · 数据结构 v{dataset.meta.schemaVersion} · 算法 v{dataset.meta.algorithmVersion}</p><p>类别由餐品名称本地推断；官方接口没有明确部分单位和计量基准，所以保留原始值，不声称每份或每 100 克。相近度和航线是数据模型下的探索，不是健康评分、进食或医疗建议。</p><ul>{dataset.warnings.map(w=><li key={w}>{w}</li>)}</ul><p>原创餐品插画为通用示意，非商品配方或官方包装复刻。浏览器只读取公开快照，不访问 Token。</p><button className="button primary" onClick={()=>{navigate(`${location.pathname}${official?'?demo=1':''}`);setSourceOpen(false);}}>{official?'切换到合成演示':'读取官方快照'}</button></div></Modal>}
   </>;
 }
-export default function App(){return <BrowserRouter><div className="app"><RepositoryBoundary>{()=> <AppShell/>}</RepositoryBoundary></div></BrowserRouter>;}
+export default function App(){return <BrowserRouter><div className="app"><PageBoundary><RepositoryBoundary>{()=> <AppShell/>}</RepositoryBoundary></PageBoundary></div></BrowserRouter>;}

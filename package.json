@@ -18,7 +18,9 @@
     "skill:build": "node scripts/package-skill.mjs",
     "skill:verify": "node scripts/verify-skill.mjs",
     "verify:contest": "tsx scripts/verify-contest.ts",
-    "illustrations:export": "tsx scripts/export-food-illustrations.ts"
+    "illustrations:export": "tsx scripts/export-food-illustrations.ts",
+    "verify:core": "tsx scripts/verify-core.ts",
+    "verify:web": "node scripts/verify-web.mjs"
   },
   "dependencies": {
     "@fontsource/nunito": "^5.3.0",
@@ -44,6 +46,7 @@
     "@vitejs/plugin-react": "latest",
     "eslint": "^9.39.0",
     "globals": "^16.5.0",
+    "playwright": "1.56.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",

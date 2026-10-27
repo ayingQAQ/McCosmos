@@ -24,6 +24,7 @@ export interface SceneController {sync:()=>void;home:()=>void;overview:()=>void;
 
 export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneInput,labels:Map<FoodCategory,HTMLButtonElement>,report:(zoom:number,focused:boolean,hovered:PlanetHover|null)=>void,onError:(message:string)=>void):SceneController {
   const initial=read(),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  const diagnostics=import.meta.env.DEV||new URLSearchParams(location.search).get('diagnostics')==='1';
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setClearColor('#FFF8EB');
   const scene=new THREE.Scene();scene.background=new THREE.Color('#FFF8EB');scene.fog=new THREE.Fog('#F3E9D8',2500,9500);
   const camera=new THREE.PerspectiveCamera(55,1,2,30000);
@@ -145,9 +146,12 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
   function restore(){if(saved){const previous=saved;saved=null;fly(previous);}read().onSelect(null);invalidate();}
   function updateView(immediate=false){
     const p=read(),inset=p.insets?.()??{left:0,bottom:0};
-    const left=width>850?Math.min(inset.left,width*.45):0,right=width>750&&p.selected?370:0;
+    const detail=canvas.parentElement?.querySelector<HTMLElement>('.planet-details');
+    const detailBounds=detail?.getBoundingClientRect(),canvasBounds=canvas.getBoundingClientRect();
+    const left=width>850?Math.min(inset.left,width*.45):0,right=width>850&&detailBounds?Math.min(width*.45,canvasBounds.right-detailBounds.left):0;
     const centerX=left+(width-left-right)/2;
-    const centerY=width<600&&p.selected?height*.20:(height-Math.min(inset.bottom,height*.25))/2;
+    const availableHeight=width<=850&&detailBounds?Math.max(80,detailBounds.top-canvasBounds.top):height-Math.min(inset.bottom,height*.25);
+    const centerY=availableHeight/2;
     targetViewX=width/2-centerX;targetViewY=height/2-centerY;
     if(!viewInitialized||immediate||reduced.matches){viewX=targetViewX;viewY=targetViewY;viewInitialized=true;}
     camera.aspect=width/height;camera.setViewOffset(width,height,viewX,viewY,width,height);camera.updateProjectionMatrix();
@@ -321,8 +325,8 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
       const distance=camera.position.distanceTo(controls.target);(scene.fog as THREE.Fog).near=Math.max(1200,distance*.8);(scene.fog as THREE.Fog).far=Math.max(6500,distance*2.1);
       camera.updateMatrixWorld();scene.updateMatrixWorld(true);batches.sync(camera);renderer.render(scene,camera);publish();
       // Detailed DOM diagnostics are useful for accessibility/regression tooling, not per-frame work.
-      snapshotPending=true;
-      const now=performance.now();if(!moving||now-lastSnapshot>=120){publishSnapshot();lastSnapshot=now;snapshotPending=false;}
+      if(diagnostics){snapshotPending=true;
+        const now=performance.now();if(!moving||now-lastSnapshot>=120){publishSnapshot();lastSnapshot=now;snapshotPending=false;}}
       dirty=false;
     }
     if(!moving&&snapshotPending){publishSnapshot();lastSnapshot=performance.now();snapshotPending=false;}
@@ -332,7 +336,14 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
   const resize=new ResizeObserver(entries=>{const bounds=entries[0].contentRect;if(!bounds.width||!bounds.height)return;const changed=width!==bounds.width||height!==bounds.height;width=bounds.width;height=bounds.height;renderer.setPixelRatio(Math.min(devicePixelRatio||1,width<600?1.25:1.5));renderer.setSize(width,height,false);updateView(true);const selected=read().selected;if(changed&&selected&&byId.has(selected))focusFood(byId.get(selected)!);});resize.observe(canvas);
   const visibility=()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;}else invalidate();};document.addEventListener('visibilitychange',visibility);
   const motion=()=>{stopInertia();if(reduced.matches&&flight){const target=flight.to;flight=null;apply(target);}invalidate();};reduced.addEventListener('change',motion);
-  canvas.dataset.world=JSON.stringify(initial.positions.map(({id,x,y,z})=>({id,x,y,z})));
+  // Observe actual sheet size so expansion and responsive changes keep focus above it.
+  let observedDetail:HTMLElement|null=null;
+  const panelResize=new ResizeObserver(()=>updateView());
+  const observeDetail=()=>{const detail=canvas.parentElement?.querySelector<HTMLElement>('.planet-details')??null;if(detail===observedDetail)return;panelResize.disconnect();observedDetail=detail;if(detail)panelResize.observe(detail);updateView();};
+  const panelChanges=new MutationObserver(observeDetail);
+  if(canvas.parentElement)panelChanges.observe(canvas.parentElement,{childList:true});
+  observeDetail();
+  if(diagnostics)canvas.dataset.world=JSON.stringify(initial.positions.map(({id,x,y,z})=>({id,x,y,z})));
   canvas.style.cursor='grab';sync();requestDraw();
   return {
     sync,
@@ -342,7 +353,7 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
     category(category){saved=null;focusCategory(category);},
     dolly(factor){flight=null;stopInertia();const offset=camera.position.clone().sub(controls.target),distance=THREE.MathUtils.clamp(offset.length()/factor,controls.minDistance,controls.maxDistance);camera.position.copy(controls.target).add(offset.setLength(distance));controls.update();invalidate();},
     dispose(){
-      disposed=true;cancelAnimationFrame(frame);resize.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',motion);
+      disposed=true;cancelAnimationFrame(frame);resize.disconnect();panelResize.disconnect();panelChanges.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',motion);
       canvas.removeEventListener('keydown',keyboard,{capture:true});canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerEnd);canvas.removeEventListener('pointercancel',pointerEnd);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('webglcontextlost',lost);
       controls.removeEventListener('start',start);controls.removeEventListener('change',change);controls.dispose();clearEdges();batches.dispose();sphere.dispose();ringGeometry.dispose();foodSurface.dispose();art.dispose();foodTextures.forEach(t=>t.dispose());foodMaterials.forEach(m=>m.dispose());foodTextures.clear();foodMaterials.clear();starGeometry.dispose();starMaterial.dispose();starTexture.dispose();labelTextures.forEach(t=>t.dispose());labelMaterials.forEach(m=>m.dispose());scene.clear();renderer.dispose();renderer.forceContextLoss();
     }
