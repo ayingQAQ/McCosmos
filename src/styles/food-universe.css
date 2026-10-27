@@ -240,9 +240,10 @@ input:focus-visible, select:focus-visible { outline-color: var(--mc-red); }
   .galaxy-stage .has-details:has(.details-expanded) .scene-controls { bottom: 8px; }
   .galaxy-stage .has-details:has(.details-expanded) .map-bottom,
   .galaxy-stage .has-details:has(.details-expanded) .map-dock { display: none; }
-  .galaxy-stage .detail-sheet-toggle { display: flex; justify-content: space-between; align-items: center; position: sticky; top: -18px; z-index: 3; width: 100%; min-height: 40px; background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line); font-size: 13px; }
-  .galaxy-stage .planet-details .detail-top { top: 22px; z-index: 2; }
-  .galaxy-stage .planet-details>.food-photo { float: right; width: 84px; margin: 0 0 8px 12px; }
+  .galaxy-stage .detail-sheet-toggle { display: flex; justify-content: space-between; align-items: center; position: static; flex: 1; min-width: 0; min-height: 40px; background: var(--paper); color: var(--ink); text-align: left; font-size: 13px; }
+  .galaxy-stage .planet-details .detail-top { top: -18px; z-index: 3; gap: 12px; }
+  .galaxy-stage .planet-details .detail-top>.eyebrow { display: none; }
+  .galaxy-stage .planet-details>.food-photo { float: right; width: 96px; aspect-ratio: auto; grid-template-rows: 80px auto; margin: 0 0 8px 12px; }
   .galaxy-stage .planet-details h2 { font-size: 20px; margin: 8px 0; }
   .galaxy-stage .planet-details .detail-basis { font-size: 11px; }
   .galaxy-stage .planet-details .nutrition-values { clear: both; }

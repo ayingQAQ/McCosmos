@@ -64,6 +64,8 @@ try {
     const box=await detail.boundingBox();
     assert(box&&box.height>=100&&box.x>=0&&box.x+box.width<=width+1&&box.y>=0&&box.y+box.height<=height,`Readable mobile sheet at ${width}x${height}`);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal overflow');
+    const photo=await detail.locator('.food-photo img').boundingBox();
+    assert(photo&&photo.height>=60,'Photo must retain a readable image area beside the mobile summary');
     const canvasBox=await page.locator('.galaxy-canvas').boundingBox();
     assert(box.y-canvasBox.y>=canvasBox.height*.25,'Expanded sheet must retain visible space for the focused planet');
     await shot(`galaxy-${width}x${height}`);
