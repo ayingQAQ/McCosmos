@@ -75,6 +75,9 @@ try {
   }
   await page.setViewportSize({width:390,height:700});
   await page.getByRole('button',{name:'关闭星球档案',exact:true}).click();
+  await page.locator('.planet-details').waitFor({state:'hidden'});
+  await visible(page.locator('.map-top'));
+  await visible(page.locator('.scene-controls'));
   const legend=await page.locator('.map-top').boundingBox(), controls=await page.locator('.scene-controls').boundingBox();
   assert(legend.y+legend.height<=controls.y,'Mobile legend and camera controls must not overlap');
   const sourceButton=page.getByRole('button',{name:'查看数据来源',exact:true});
