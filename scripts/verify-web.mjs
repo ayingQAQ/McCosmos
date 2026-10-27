@@ -59,11 +59,13 @@ try {
     await page.setViewportSize({width,height});
     const detail=page.locator('.planet-details');
     await visible(page.getByRole('button',{name:'展开餐品档案'}));
+    const collapsedBox=await detail.boundingBox();
     await page.getByRole('button',{name:'展开餐品档案'}).click();
     await visible(page.getByRole('button',{name:'收起档案，继续探索'}));
     const box=await detail.boundingBox();
     assert(box&&box.height>=100&&box.x>=0&&box.x+box.width<=width+1&&box.y>=0&&box.y+box.height<=height,`Readable mobile sheet at ${width}x${height}`);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal overflow');
+    assert(box.height>collapsedBox.height,'Expanding the sheet must increase reading space');
     const photo=await detail.locator('.food-photo img').boundingBox();
     assert(photo&&photo.height>=60,'Photo must retain a readable image area beside the mobile summary');
     const canvasBox=await page.locator('.galaxy-canvas').boundingBox();
