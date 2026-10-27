@@ -11,6 +11,10 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    container:
+      # Keep this version aligned with the pinned playwright dependency.
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --ipc=host
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +35,6 @@ jobs:
       - run: pnpm skill:verify
       - run: pnpm illustrations:export
       - run: pnpm verify:contest
-      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm verify:web
       - uses: actions/upload-artifact@v4
         if: always()
