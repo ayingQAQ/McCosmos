@@ -125,7 +125,7 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
   }
   function focusFood(planet:Planet){
     const direction=camera.position.clone().sub(controls.target).normalize(),target=planet.group.position.clone();
-    const distance=width<600?Math.max(380,planet.targetRadius*12):Math.max(240,planet.targetRadius*7);
+    const distance=width<=850?Math.max(380,planet.targetRadius*12):Math.max(240,planet.targetRadius*7);
     fly({target,position:target.clone().addScaledVector(direction,distance)});
   }
   function framePoints(points:THREE.Vector3[],padding=150){
@@ -150,7 +150,7 @@ export function createGalaxyScene(canvas:HTMLCanvasElement,read:()=>GalaxySceneI
     const detailBounds=detail?.getBoundingClientRect(),canvasBounds=canvas.getBoundingClientRect();
     const left=width>850?Math.min(inset.left,width*.45):0,right=width>850&&detailBounds?Math.min(width*.45,canvasBounds.right-detailBounds.left):0;
     const centerX=left+(width-left-right)/2;
-    const availableHeight=width<=850&&detailBounds?Math.max(80,detailBounds.top-canvasBounds.top):height-Math.min(inset.bottom,height*.25);
+    const availableHeight=width<=850&&detailBounds?Math.max(1,detailBounds.top-canvasBounds.top):height-Math.min(inset.bottom,height*.25);
     const centerY=availableHeight/2;
     targetViewX=width/2-centerX;targetViewY=height/2-centerY;
     if(!viewInitialized||immediate||reduced.matches){viewX=targetViewX;viewY=targetViewY;viewInitialized=true;}

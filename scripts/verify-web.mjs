@@ -64,10 +64,21 @@ try {
     const box=await detail.boundingBox();
     assert(box&&box.height>=100&&box.x>=0&&box.x+box.width<=width+1&&box.y>=0&&box.y+box.height<=height,`Readable mobile sheet at ${width}x${height}`);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal overflow');
+    const canvasBox=await page.locator('.galaxy-canvas').boundingBox();
+    assert(box.y-canvasBox.y>=canvasBox.height*.25,'Expanded sheet must retain visible space for the focused planet');
     await shot(`galaxy-${width}x${height}`);
     await page.getByRole('button',{name:'收起档案，继续探索'}).click();
   }
-  evidence.checks.push('expandable sheet: phone, short phone, landscape');
+  await page.setViewportSize({width:390,height:700});
+  await page.getByRole('button',{name:'关闭星球档案',exact:true}).click();
+  const legend=await page.locator('.map-top').boundingBox(), controls=await page.locator('.scene-controls').boundingBox();
+  assert(legend.y+legend.height<=controls.y,'Mobile legend and camera controls must not overlap');
+  const sourceButton=page.getByRole('button',{name:'查看数据来源',exact:true});
+  await sourceButton.click();
+  await visible(page.getByRole('dialog'));
+  await page.getByRole('button',{name:'关闭窗口',exact:true}).click();
+  await shot('galaxy-mobile-overview');
+  evidence.checks.push('expandable sheet: phone, short phone, landscape; unobstructed source button');
   // Missing route chunks must offer recovery instead of a blank page.
   const recovery=await context.newPage();
   await recovery.route('**/AtlasPage-*.js',route=>route.abort());

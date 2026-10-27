@@ -170,7 +170,7 @@ input:focus-visible, select:focus-visible { outline-color: var(--mc-red); }
   .galaxy-panel .category-filters { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .galaxy-panel .category-filters button.all { grid-column: auto; }
   .galaxy-panel .lens-filters { grid-template-columns: repeat(5,minmax(0,1fr)); }
-  .galaxy-stage .map-top, .galaxy-stage.panel-collapsed .map-top { top: auto; bottom: 68px; left: 12px; right: 12px; }
+  .galaxy-stage .map-top, .galaxy-stage.panel-collapsed .map-top { top: auto; bottom: 108px; left: 12px; right: 12px; }
   .galaxy-stage .map-dock, .galaxy-stage.panel-collapsed .map-dock { left: 12px; right: 12px; bottom: 212px; max-height: max(96px,calc(100% - 280px)); }
   .galaxy-stage .map-paper.has-details .map-dock, .galaxy-stage.panel-collapsed .map-paper.has-details .map-dock { width: auto; }
   /* A readable sheet with an explicit expansion control; measured by the camera. */
@@ -236,9 +236,17 @@ input:focus-visible, select:focus-visible { outline-color: var(--mc-red); }
 .skill-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 20px; }
 .skill-intro small, .snapshot-freshness { color: var(--muted); font-size: 12px; line-height: 1.8; }
 @media (max-width:850px) {
-  .galaxy-stage .map-paper .planet-details.details-expanded { height: calc(100% - 168px); max-height: calc(100% - 168px); }
+  .galaxy-stage .map-paper .planet-details.details-expanded { bottom: 64px!important; height: calc(72% - 64px); max-height: calc(72% - 64px); }
+  .galaxy-stage .has-details:has(.details-expanded) .scene-controls { bottom: 8px; }
+  .galaxy-stage .has-details:has(.details-expanded) .map-bottom,
+  .galaxy-stage .has-details:has(.details-expanded) .map-dock { display: none; }
   .galaxy-stage .detail-sheet-toggle { display: flex; justify-content: space-between; align-items: center; position: sticky; top: -18px; z-index: 3; width: 100%; min-height: 40px; background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line); font-size: 13px; }
   .galaxy-stage .planet-details .detail-top { top: 22px; z-index: 2; }
+  .galaxy-stage .planet-details>.food-photo { float: right; width: 84px; margin: 0 0 8px 12px; }
+  .galaxy-stage .planet-details h2 { font-size: 20px; margin: 8px 0; }
+  .galaxy-stage .planet-details .detail-basis { font-size: 11px; }
+  .galaxy-stage .planet-details .nutrition-values { clear: both; }
+
   .galaxy-stage .has-details .map-top { display: none; }
   .galaxy-stage:not(.filters-open) .has-details .galaxy-panel { width: auto; right: auto; padding: 6px 10px; }
   .galaxy-stage:not(.filters-open) .has-details .galaxy-panel .panel-head,
@@ -252,7 +260,7 @@ input:focus-visible, select:focus-visible { outline-color: var(--mc-red); }
 
 @media (max-width:850px) and (max-height:500px) {
   .galaxy-stage .map-paper .planet-details { bottom: 60px!important; height: 60%; max-height: calc(100% - 76px); }
-  .galaxy-stage .map-paper .planet-details.details-expanded { height: calc(100% - 76px); max-height: calc(100% - 76px); }
+  .galaxy-stage .map-paper .planet-details.details-expanded { bottom: 60px!important; height: calc(72% - 60px); max-height: calc(72% - 60px); }
   .scene-controls, .has-details .scene-controls { bottom: 8px; }
   .galaxy-stage .map-bottom, .galaxy-stage .has-details .map-dock { display: none; }
 }
