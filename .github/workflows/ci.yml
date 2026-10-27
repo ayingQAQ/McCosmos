@@ -26,6 +26,8 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Trust checked-out workspace in container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
